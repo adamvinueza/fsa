@@ -10,7 +10,7 @@ An FSA is a tuple (Q, A, t, q0, F), where
   4. q0 is a member of Q denoting the start state, and
   5. F is a proper subset of Q denoting the set of accepting states.
 ```
-To implement a FSA, we will need:
+To implement an FSA, we will need:
   - an array of states
   - an array of symbols
   - a map from pairs of states and symbols to states
