@@ -77,6 +77,19 @@ func (a *Automaton) Accepts(s string) bool {
 	return false
 }
 
+// AcceptsLanguage returns true if this Automaton accepts every symbol in the
+// specified Language.
+func (a *Automaton) AcceptsLanguage(l *Language) bool {
+	iter := l.Symbols.Iter()
+	for s := range iter {
+		if !a.Accepts(s) {
+			return false
+		}
+		a.Reset()
+	}
+	return true
+}
+
 // addDelta validates the specified Transition and adds a corresponding Delta if
 // it is valid.
 func (a *Automaton) addDelta(t Transition) error {

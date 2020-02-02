@@ -1,9 +1,8 @@
 package fsa_test
 
 import (
-	"testing"
-
 	"github.com/adamvinueza/fsa"
+	"testing"
 )
 
 func TestAcceptsNothing(t *testing.T) {
@@ -249,6 +248,64 @@ func TestAcceptsEvenNumberOfSymbols(t *testing.T) {
 	for i, tt := range tests {
 		f.Reset()
 		accepted := f.Accepts(tt.input)
+		if tt.accepted != accepted {
+			t.Fatalf("In test %d, expected accepted value of %t, found %t", i, tt.accepted, accepted)
+		}
+	}
+}
+
+func TestAcceptsEvenAsLanguage(t *testing.T) {
+	q0 := fsa.NewState(0)
+	q1 := fsa.NewState(1)
+	q2 := fsa.NewState(2)
+	states := []fsa.State{q0, q1, q2}
+	a := "a"
+	alphabet := []string{a}
+	f, err := fsa.NewAutomaton(
+		states,
+		alphabet,
+		q0,
+		[]fsa.Transition{
+			fsa.Transition{
+				Start: q0,
+				Token: a,
+				End:   q1,
+			},
+			fsa.Transition{
+				Start: q1,
+				Token: a,
+				End:   q2,
+			},
+			fsa.Transition{
+				Start: q2,
+				Token: a,
+				End:   q1,
+			},
+		},
+		[]fsa.State{
+			q0,
+			q2,
+		},
+	)
+	if err != nil {
+		t.Fatalf("error creating Automaton: %s", err.Error())
+	}
+	tests := []struct {
+		input    *fsa.Language
+		accepted bool
+	}{
+		{
+			fsa.NewLanguage([]string{"aa", "aaaa", "aaaaaa", "aaaaaaaa", "aaaaaaaaaaaaaaaa"}),
+			true,
+		},
+		{
+			fsa.NewLanguage([]string{"aa", "aaaa", "aaaaaa", "aaaaaaaaa", "aaaaaaaaaaaaaaaa"}),
+			false,
+		},
+	}
+	for i, tt := range tests {
+		f.Reset()
+		accepted := f.AcceptsLanguage(tt.input)
 		if tt.accepted != accepted {
 			t.Fatalf("In test %d, expected accepted value of %t, found %t", i, tt.accepted, accepted)
 		}
