@@ -1,7 +1,7 @@
 # FSA Implementation in Go
 
-This is an implementation of a (deterministic) finite-state automaton (FSAs) in Go. The formal
-definition of an FSA is as follows:
+This is an implementation of a (deterministic) finite-state automaton (FSA) in
+Go. The formal definition of an FSA is as follows:
 ```
 An FSA is a tuple (Q, A, t, q0, F), where
   1. Q is a finite set of states,
