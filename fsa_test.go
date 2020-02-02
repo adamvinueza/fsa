@@ -51,6 +51,11 @@ func TestAcceptsOnlyEmptyString(t *testing.T) {
 		alphabet, // alphabet
 		q1,       // initial state
 		[]fsa.Transition{
+			// Any symbol takes the FSA from its sole final state to its sole
+			// non-final state; this is the only transition. Saves us the
+			// trouble of using regular expressions, or creating a humongous
+			// number of transitions from distinct symbols, or modifying
+			// transitions to take slices of symbols.
 			fsa.Transition{
 				q1,
 				fsa.AnySymbol,
