@@ -1,11 +1,12 @@
 package fsa_test
 
 import (
-	"github.com/adamvinueza/fsa"
 	"testing"
+
+	"github.com/adamvinueza/fsa"
 )
 
-func TestAcceptsNoSymbols(t *testing.T) {
+func TestAcceptsNothing(t *testing.T) {
 	q0 := fsa.NewState(0)
 	states := []fsa.State{q0}
 	alphabet := []string{}
@@ -26,6 +27,48 @@ func TestAcceptsNoSymbols(t *testing.T) {
 		{
 			"",
 			false,
+		},
+		{
+			"a",
+			false,
+		},
+	}
+	for _, tt := range tests {
+		accepted := f.Accepts(tt.input)
+		if tt.accepted != accepted {
+			t.Fatalf("Expected accepted value of %t, found %t", tt.accepted, accepted)
+		}
+	}
+}
+
+func TestAcceptsOnlyEmptyString(t *testing.T) {
+	q1 := fsa.NewState(1)
+	q2 := fsa.NewState(2)
+	states := []fsa.State{q1, q2}
+	alphabet := []string{}
+	f, err := fsa.NewAutomaton(
+		states,   // allowable states
+		alphabet, // alphabet
+		q1,       // initial state
+		[]fsa.Transition{
+			fsa.Transition{
+				q1,
+				fsa.AnySymbol,
+				q2,
+			},
+		}, // allowable transitions
+		[]fsa.State{q1}, // final states
+	)
+	if err != nil {
+		t.Fatalf("error creating Automaton: %s", err.Error())
+	}
+	tests := []struct {
+		input    string
+		accepted bool
+	}{
+		{
+			"",
+			true,
 		},
 		{
 			"a",

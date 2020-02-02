@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+const AnySymbol = "ANY_SYMBOL"
+
 // Automaton represents a finite-State automaton.
 type Automaton struct {
 	// States represents this automaton's possible States.
@@ -68,6 +70,10 @@ func (a *Automaton) Accepts(s string) bool {
 	if err := a.transition(head); err == nil {
 		return a.Accepts(tail)
 	}
+	// if that particular symbol does not work, see if AnySymbol works
+	if err := a.transition(AnySymbol); err == nil {
+		return a.Accepts(tail)
+	}
 	return false
 }
 
@@ -80,7 +86,7 @@ func (a *Automaton) addDelta(t Transition) error {
 	if !StatesContains(a.States, t.End) {
 		return fmt.Errorf(`end state "%s" not found in States`, t.End)
 	}
-	if !stringsContains(a.Alphabet, t.Token) {
+	if !stringsContains(a.Alphabet, t.Token) && t.Token != AnySymbol {
 		return fmt.Errorf(`token "%s" not found in alphabet`, t.Token)
 	}
 	d := t.delta()
