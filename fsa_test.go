@@ -1,21 +1,24 @@
 package fsa_test
 
 import (
-	"testing"
-
 	"github.com/adamvinueza/fsa"
-	"github.com/adamvinueza/fsa/delta"
+	"testing"
 )
 
 func TestAcceptsNoSymbols(t *testing.T) {
-	q0 := delta.NewState(0)
-	ss := []string{}
-	f := fsa.NewAutomaton(
-		q0,              // initial state
-		ss,              // alphabet
-		[]delta.Delta{}, // allowable deltas
-		[]delta.State{}, // final states
+	q0 := fsa.NewState(0)
+	states := []fsa.State{q0}
+	alphabet := []string{}
+	f, err := fsa.NewAutomaton(
+		states,             // allowable states
+		alphabet,           // alphabet
+		q0,                 // initial state
+		[]fsa.Transition{}, // allowable transitions
+		[]fsa.State{},      // final states
 	)
+	if err != nil {
+		t.Fatalf("error creating Automaton: %s", err.Error())
+	}
 	tests := []struct {
 		input    string
 		accepted bool
@@ -38,43 +41,48 @@ func TestAcceptsNoSymbols(t *testing.T) {
 }
 
 func TestAcceptsEmptyStringOrEvenBinary(t *testing.T) {
-	q1 := delta.NewState(1)
-	q2 := delta.NewState(2)
+	q1 := fsa.NewState(1)
+	q2 := fsa.NewState(2)
+	states := []fsa.State{q1, q2}
 	zero := "0"
 	one := "1"
-	ss := []string{
+	alphabet := []string{
 		zero,
 		one,
 	}
-	f := fsa.NewAutomaton(
+	f, err := fsa.NewAutomaton(
+		states,
+		alphabet,
 		q1,
-		ss,
-		[]delta.Delta{
-			delta.Delta{
-				q1,
-				zero,
-				q1,
+		[]fsa.Transition{
+			fsa.Transition{
+				Start: q1,
+				Token: zero,
+				End:   q1,
 			},
-			delta.Delta{
-				q1,
-				one,
-				q2,
+			fsa.Transition{
+				Start: q1,
+				Token: one,
+				End:   q2,
 			},
-			delta.Delta{
-				q2,
-				one,
-				q2,
+			fsa.Transition{
+				Start: q2,
+				Token: one,
+				End:   q2,
 			},
-			delta.Delta{
-				q2,
-				zero,
-				q1,
+			fsa.Transition{
+				Start: q2,
+				Token: zero,
+				End:   q1,
 			},
 		},
-		[]delta.State{
+		[]fsa.State{
 			q1,
 		},
 	)
+	if err != nil {
+		t.Fatalf("error creating Automaton: %s", err.Error())
+	}
 	tests := []struct {
 		input    string
 		accepted bool
@@ -130,36 +138,41 @@ func TestAcceptsEmptyStringOrEvenBinary(t *testing.T) {
 }
 
 func TestAcceptsEvenNumberOfSymbols(t *testing.T) {
-	q0 := delta.NewState(0)
-	q1 := delta.NewState(1)
-	q2 := delta.NewState(2)
+	q0 := fsa.NewState(0)
+	q1 := fsa.NewState(1)
+	q2 := fsa.NewState(2)
+	states := []fsa.State{q0, q1, q2}
 	a := "a"
-	ss := []string{a}
-	f := fsa.NewAutomaton(
+	alphabet := []string{a}
+	f, err := fsa.NewAutomaton(
+		states,
+		alphabet,
 		q0,
-		ss,
-		[]delta.Delta{
-			delta.Delta{
-				q0,
-				a,
-				q1,
+		[]fsa.Transition{
+			fsa.Transition{
+				Start: q0,
+				Token: a,
+				End:   q1,
 			},
-			delta.Delta{
-				q1,
-				a,
-				q2,
+			fsa.Transition{
+				Start: q1,
+				Token: a,
+				End:   q2,
 			},
-			delta.Delta{
-				q2,
-				a,
-				q1,
+			fsa.Transition{
+				Start: q2,
+				Token: a,
+				End:   q1,
 			},
 		},
-		[]delta.State{
+		[]fsa.State{
 			q0,
 			q2,
 		},
 	)
+	if err != nil {
+		t.Fatalf("error creating Automaton: %s", err.Error())
+	}
 	tests := []struct {
 		input    string
 		accepted bool

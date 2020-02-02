@@ -17,7 +17,4 @@ To implement a FSA, we will need:
   - an initial state
   - an array of accepting states
 
-I want to implement this via TDD. What will the tests look like? Well, I want
-the FSA to recognize regular languages, so some of the tests should verify that
-particular regular languages are recognized by particular FSAs. This suggests I
-should also have a way of producing regular languages.
+This FSA was implemented via TDD. See `fsa_test.go` for the tests.
