@@ -24,7 +24,8 @@ An NFA is a tuple (Q, A, t, q0, F), where
   4. q0 is a member of Q denoting the start state, and
   5. F is a proper subset of Q denoting the set of accepting states.
 ```
-This FSA was implemented via TDD. See `dfa_test.go` and `nfa_test.go` for the tests.
+This FSA was implemented via TDD. See [dfa_test.go]('/dfa_test.go') and
+[nfa_test.go](nfa_test.go) for the tests.
 
 A cute wrinkle is that there's a quick-and-dirty way to implement a set of typed
 items in Go, using a map from the item to a boolean value: adding an item to the
