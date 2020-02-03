@@ -1,20 +1,20 @@
 package fsa_test
 
 import (
-	"github.com/adamvinueza/fsa"
+	. "github.com/adamvinueza/fsa"
 	"testing"
 )
 
 func TestAcceptsNothing(t *testing.T) {
-	q0 := fsa.NewState(0)
-	states := []fsa.State{q0}
+	q0 := NewState(0)
+	states := []State{q0}
 	alphabet := []string{}
-	f, err := fsa.NewAutomaton(
-		states,             // allowable states
-		alphabet,           // alphabet
-		q0,                 // initial state
-		[]fsa.Transition{}, // allowable transitions
-		[]fsa.State{},      // final states
+	f, err := NewDFA(
+		states,         // allowable states
+		alphabet,       // alphabet
+		q0,             // initial state
+		[]Transition{}, // allowable transitions
+		[]State{},      // final states
 	)
 	if err != nil {
 		t.Fatalf("error creating Automaton: %s", err.Error())
@@ -41,27 +41,27 @@ func TestAcceptsNothing(t *testing.T) {
 }
 
 func TestAcceptsOnlyEmptyString(t *testing.T) {
-	q1 := fsa.NewState(1)
-	q2 := fsa.NewState(2)
-	states := []fsa.State{q1, q2}
+	q1 := NewState(1)
+	q2 := NewState(2)
+	states := []State{q1, q2}
 	alphabet := []string{}
-	f, err := fsa.NewAutomaton(
+	f, err := NewDFA(
 		states,   // allowable states
 		alphabet, // alphabet
 		q1,       // initial state
-		[]fsa.Transition{
+		[]Transition{
 			// Any symbol takes the FSA from its sole final state to its sole
 			// non-final state; this is the only transition. Saves us the
 			// trouble of using regular expressions, or creating a humongous
 			// number of transitions from distinct symbols, or modifying
 			// transitions to take slices of symbols.
-			fsa.Transition{
+			Transition{
 				q1,
-				fsa.AnySymbol,
+				AnySymbol,
 				q2,
 			},
 		}, // allowable transitions
-		[]fsa.State{q1}, // final states
+		[]State{q1}, // final states
 	)
 	if err != nil {
 		t.Fatalf("error creating Automaton: %s", err.Error())
@@ -88,42 +88,42 @@ func TestAcceptsOnlyEmptyString(t *testing.T) {
 }
 
 func TestAcceptsEmptyStringOrEvenBinary(t *testing.T) {
-	q1 := fsa.NewState(1)
-	q2 := fsa.NewState(2)
-	states := []fsa.State{q1, q2}
+	q1 := NewState(1)
+	q2 := NewState(2)
+	states := []State{q1, q2}
 	zero := "0"
 	one := "1"
 	alphabet := []string{
 		zero,
 		one,
 	}
-	f, err := fsa.NewAutomaton(
+	f, err := NewDFA(
 		states,
 		alphabet,
 		q1,
-		[]fsa.Transition{
-			fsa.Transition{
+		[]Transition{
+			Transition{
 				Start: q1,
 				Token: zero,
 				End:   q1,
 			},
-			fsa.Transition{
+			Transition{
 				Start: q1,
 				Token: one,
 				End:   q2,
 			},
-			fsa.Transition{
+			Transition{
 				Start: q2,
 				Token: one,
 				End:   q2,
 			},
-			fsa.Transition{
+			Transition{
 				Start: q2,
 				Token: zero,
 				End:   q1,
 			},
 		},
-		[]fsa.State{
+		[]State{
 			q1,
 		},
 	)
@@ -185,34 +185,34 @@ func TestAcceptsEmptyStringOrEvenBinary(t *testing.T) {
 }
 
 func TestAcceptsEvenNumberOfSymbols(t *testing.T) {
-	q0 := fsa.NewState(0)
-	q1 := fsa.NewState(1)
-	q2 := fsa.NewState(2)
-	states := []fsa.State{q0, q1, q2}
+	q0 := NewState(0)
+	q1 := NewState(1)
+	q2 := NewState(2)
+	states := []State{q0, q1, q2}
 	a := "a"
 	alphabet := []string{a}
-	f, err := fsa.NewAutomaton(
+	f, err := NewDFA(
 		states,
 		alphabet,
 		q0,
-		[]fsa.Transition{
-			fsa.Transition{
+		[]Transition{
+			Transition{
 				Start: q0,
 				Token: a,
 				End:   q1,
 			},
-			fsa.Transition{
+			Transition{
 				Start: q1,
 				Token: a,
 				End:   q2,
 			},
-			fsa.Transition{
+			Transition{
 				Start: q2,
 				Token: a,
 				End:   q1,
 			},
 		},
-		[]fsa.State{
+		[]State{
 			q0,
 			q2,
 		},
@@ -255,34 +255,34 @@ func TestAcceptsEvenNumberOfSymbols(t *testing.T) {
 }
 
 func TestAcceptsEvenAsLanguage(t *testing.T) {
-	q0 := fsa.NewState(0)
-	q1 := fsa.NewState(1)
-	q2 := fsa.NewState(2)
-	states := []fsa.State{q0, q1, q2}
+	q0 := NewState(0)
+	q1 := NewState(1)
+	q2 := NewState(2)
+	states := []State{q0, q1, q2}
 	a := "a"
 	alphabet := []string{a}
-	f, err := fsa.NewAutomaton(
+	f, err := NewDFA(
 		states,
 		alphabet,
 		q0,
-		[]fsa.Transition{
-			fsa.Transition{
+		[]Transition{
+			Transition{
 				Start: q0,
 				Token: a,
 				End:   q1,
 			},
-			fsa.Transition{
+			Transition{
 				Start: q1,
 				Token: a,
 				End:   q2,
 			},
-			fsa.Transition{
+			Transition{
 				Start: q2,
 				Token: a,
 				End:   q1,
 			},
 		},
-		[]fsa.State{
+		[]State{
 			q0,
 			q2,
 		},
@@ -290,16 +290,24 @@ func TestAcceptsEvenAsLanguage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error creating Automaton: %s", err.Error())
 	}
+	acceptableLang, err := NewLanguage([]string{"aa", "aaaa", "aaaaaa", "aaaaaaaa", "aaaaaaaaaaaaaaaa"})
+	if err != nil {
+		t.Fatalf("error creating language: %s", err.Error())
+	}
+	unacceptableLang, err := NewLanguage([]string{"aa", "aaaa", "aaaaaa", "aaaaaaaaa", "aaaaaaaaaaaaaaaa"})
+	if err != nil {
+		t.Fatalf("error creating language: %s", err.Error())
+	}
 	tests := []struct {
-		input    *fsa.Language
+		input    *Language
 		accepted bool
 	}{
 		{
-			fsa.NewLanguage([]string{"aa", "aaaa", "aaaaaa", "aaaaaaaa", "aaaaaaaaaaaaaaaa"}),
+			acceptableLang,
 			true,
 		},
 		{
-			fsa.NewLanguage([]string{"aa", "aaaa", "aaaaaa", "aaaaaaaaa", "aaaaaaaaaaaaaaaa"}),
+			unacceptableLang,
 			false,
 		},
 	}

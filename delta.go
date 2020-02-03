@@ -1,32 +1,20 @@
 package fsa
 
-import (
-	"fmt"
-)
+import "fmt"
 
-// Represents a state in a finite-state automaton.
-type State string
-
-// NewState just builds a state string from an index.
-func NewState(idx int) State {
-	return State(fmt.Sprintf("q%d", idx))
-}
-
-// StatesContains returns true if the specified slice of States contains the
-// specified State.
-func StatesContains(ss []State, s State) bool {
-	for _, e := range ss {
-		if e == s {
-			return true
-		}
-	}
-	return false
-}
+// Epsilon represents the empty string, used in epsilon transitions.
+const Epsilon = "EPSILON"
 
 // Delta represents a mapping of a Token and a State to a State.
 type Delta struct {
 	Key  StateTokenPair
 	Next State
+}
+
+// NDelta represents a mapping of a Tokn and a State to a set of States.
+type NDelta struct {
+	Key  StateTokenPair
+	Next *StateSet
 }
 
 func (d Delta) String() string {
@@ -44,6 +32,32 @@ type Transition struct {
 	End   State
 }
 
+// NTransition represents a change from a beginning State to a set of ending
+// States via a Token.
+type NTransition struct {
+	Start State
+	Token string
+	End   *StateSet
+}
+
+// creates a non-deterministic delta from a transition.
+func (n NTransition) delta() NDelta {
+	return NDelta{
+		Key: StateTokenPair{
+			State: n.Start,
+			Token: n.Token,
+		},
+		Next: n.End,
+	}
+}
+
+func (n *NDelta) String() string {
+	return fmt.Sprintf("Key: %s, Next: %s", n.Key, n.Next)
+}
+
+// NDeltas represents a non-deterministic delta function.
+type NDeltas map[StateTokenPair]*StateSet
+
 // creates a Delta from a Transition.
 func (t Transition) delta() Delta {
 	return Delta{
@@ -55,8 +69,12 @@ func (t Transition) delta() Delta {
 	}
 }
 
-// Represents the argument to a Deltas function.
+// StateTokenPair represents the argument to a delta function.
 type StateTokenPair struct {
 	State State
 	Token string
+}
+
+func (s StateTokenPair) String() string {
+	return fmt.Sprintf("(%s, %s) => ", s.State, s.Token)
 }

@@ -1,26 +1,22 @@
 package fsa
 
+// SymbolSet represents a set of symbols, the building blocks of a Language.
 type SymbolSet struct {
 	symbols map[string]bool
 }
 
-func NewSymbolSet(ss []string) *SymbolSet {
-	sSet := SymbolSet{symbols: make(map[string]bool)}
+func NewEmptySymbolSet() *SymbolSet {
+	return &SymbolSet{symbols: make(map[string]bool)}
+}
+
+// NewSymbolSet creates a SymbolSet from a slice of strings. It is permissive in
+// that it allows the slice to contain copies.
+func NewSymbolSet(ss []string) (*SymbolSet, error) {
+	sSet := NewEmptySymbolSet()
 	for _, s := range ss {
 		sSet.symbols[s] = true
 	}
-	return &sSet
-}
-
-func (sSet *SymbolSet) Iter() chan string {
-	iter := make(chan string)
-	go func() {
-		for k, _ := range sSet.symbols {
-			iter <- k
-		}
-		close(iter)
-	}()
-	return iter
+	return sSet, nil
 }
 
 func (sSet *SymbolSet) Add(s string) {
@@ -32,7 +28,7 @@ func (sSet *SymbolSet) Remove(s string) {
 }
 
 func (sSet *SymbolSet) Copy() *SymbolSet {
-	sSetCopy := NewSymbolSet([]string{})
+	sSetCopy := NewEmptySymbolSet()
 	for k, _ := range sSet.symbols {
 		sSetCopy.Add(k)
 	}
@@ -51,9 +47,13 @@ type Language struct {
 	Symbols *SymbolSet
 }
 
-func NewLanguage(ss []string) *Language {
-	l := Language{
-		Symbols: NewSymbolSet(ss),
+func NewLanguage(ss []string) (*Language, error) {
+	symbols, err := NewSymbolSet(ss)
+	if err != nil {
+		return nil, err
 	}
-	return &l
+	l := Language{
+		Symbols: symbols,
+	}
+	return &l, nil
 }
