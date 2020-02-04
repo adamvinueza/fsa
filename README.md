@@ -41,3 +41,9 @@ version](https://github.com/fatih/set) of this way of implementing sets.
 Unfortunately, I didn't know about his version at the time, but already decided
 that I liked the idea of having strongly typed sets, and his version has empty
 interfaces as set elements.)
+
+### Possible extensions
+
+1. Provide a function that transforms an NFA into a DFA.
+2. Create functionality to implement the operations on FSAs under which they are
+   closed: union, concatenation, and Kleene star.
