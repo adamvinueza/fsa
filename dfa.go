@@ -86,7 +86,7 @@ func (dfa *DFA) Accepts(s string) bool {
 // AcceptsLanguage returns true if this Automaton accepts every symbol in the
 // specified Language.
 func (dfa *DFA) AcceptsLanguage(l *Language) bool {
-	for s := range l.Symbols.symbols {
+	for s := range l.expressions.expressions {
 		if !dfa.Accepts(s) {
 			return false
 		}

@@ -1,59 +1,59 @@
 package fsa
 
-// SymbolSet represents a set of symbols, the building blocks of a Language.
-type SymbolSet struct {
-	symbols map[string]bool
+// ExpressionSet represents a set of expressions, the building blocks of a Language.
+type ExpressionSet struct {
+	expressions map[string]bool
 }
 
-func NewEmptySymbolSet() *SymbolSet {
-	return &SymbolSet{symbols: make(map[string]bool)}
+func NewEmptyExpressionSet() *ExpressionSet {
+	return &ExpressionSet{expressions: make(map[string]bool)}
 }
 
-// NewSymbolSet creates a SymbolSet from a slice of strings. It is permissive in
+// NewExpressionSet creates a ExpressionSet from a slice of strings. It is permissive in
 // that it allows the slice to contain copies.
-func NewSymbolSet(ss []string) (*SymbolSet, error) {
-	sSet := NewEmptySymbolSet()
+func NewExpressionSet(ss []string) (*ExpressionSet, error) {
+	eSet := NewEmptyExpressionSet()
 	for _, s := range ss {
-		sSet.symbols[s] = true
+		eSet.expressions[s] = true
 	}
-	return sSet, nil
+	return eSet, nil
 }
 
-func (sSet *SymbolSet) Add(s string) {
-	sSet.symbols[s] = true
+func (eSet *ExpressionSet) Add(s string) {
+	eSet.expressions[s] = true
 }
 
-func (sSet *SymbolSet) Remove(s string) {
-	delete(sSet.symbols, s)
+func (eSet *ExpressionSet) Remove(s string) {
+	delete(eSet.expressions, s)
 }
 
-func (sSet *SymbolSet) Copy() *SymbolSet {
-	sSetCopy := NewEmptySymbolSet()
-	for k, _ := range sSet.symbols {
-		sSetCopy.Add(k)
+func (eSet *ExpressionSet) Copy() *ExpressionSet {
+	eSetCopy := NewEmptyExpressionSet()
+	for k, _ := range eSet.expressions {
+		eSetCopy.Add(k)
 	}
-	return sSetCopy
+	return eSetCopy
 }
 
-func (ss *SymbolSet) Union(tt SymbolSet) *SymbolSet {
+func (ss *ExpressionSet) Union(ee ExpressionSet) *ExpressionSet {
 	ssCopy := ss.Copy()
-	for k, _ := range tt.symbols {
+	for k, _ := range ee.expressions {
 		ssCopy.Add(k)
 	}
 	return ssCopy
 }
 
 type Language struct {
-	Symbols *SymbolSet
+	expressions *ExpressionSet
 }
 
 func NewLanguage(ss []string) (*Language, error) {
-	symbols, err := NewSymbolSet(ss)
+	expressions, err := NewExpressionSet(ss)
 	if err != nil {
 		return nil, err
 	}
 	l := Language{
-		Symbols: symbols,
+		expressions: expressions,
 	}
 	return &l, nil
 }
