@@ -3,6 +3,14 @@
 This repository contains implementations of deterministic and non-deterministic
 finite-state automata in Go. It's just an exercise.
 
+The basic idea behind a finite-state automaton is that it starts in a state, its
+reading a symbol causes it to go from one state to another, and that if when it's
+done reading symbols it's in an "accepting" state, the string it reads is accepted.
+If this sounds a lot like a regular-expression engine, well, that's exactly what a
+regular-expression engine is. (There's a proof that regular-expression engines are
+finite-state automata; the proof is a regular staple in computer-science-theory
+courses.)
+
 The formal definition of a deterministic finite-state automaton (DFA) is as
 follows:
 ```
@@ -11,7 +19,7 @@ A DFA is a tuple (Q, A, t, q0, F), where
   2. A is a finite set of symbols (the alphabet),
   3. t is the transition function (a mapping of state-symbol pairs to states),
   4. q0 is a member of Q denoting the start state, and
-  5. F is a proper subset of Q denoting the set of accepting states.
+  5. F is a subset of Q denoting the set of accepting states.
 ```
 The formal definition of a non-deterministic finite-state automaton (NFA) is as
 follows:
@@ -22,7 +30,7 @@ An NFA is a tuple (Q, A, t, q0, F), where
   3. t is the transition function (a mapping of state-symbol pairs to sets of
      states),
   4. q0 is a member of Q denoting the start state, and
-  5. F is a proper subset of Q denoting the set of accepting states.
+  5. F is a subset of Q denoting the set of accepting states.
 ```
 This FSA was implemented via TDD. See [dfa_test.go](/dfa_test.go) and
 [nfa_test.go](nfa_test.go) for the tests.
