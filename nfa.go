@@ -3,10 +3,7 @@ package fsa
 import "fmt"
 
 type NFA struct {
-	States   *StateSet
-	Alphabet []string
-	Start    State
-	Finals   *StateSet
+	Automaton
 	Deltas   NDeltas
 	current  *StateSet
 }
@@ -18,10 +15,12 @@ func NewNFA(
 	finals []State,
 	transitions []NTransition) (*NFA, error) {
 	n := NFA{
-		States:   NewStateSet(states),
-		Alphabet: alphabet,
-		Start:    start,
-		Finals:   NewStateSet(finals),
+		Automaton: {
+			States:   NewStateSet(states),
+			Alphabet: alphabet,
+			Start:    start,
+			Finals:   NewStateSet(finals),
+		},
 	}
 	n.Reset()
 	err := n.addDeltas(transitions)
