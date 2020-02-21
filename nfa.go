@@ -15,7 +15,7 @@ func NewNFA(
 	finals []State,
 	transitions []NTransition) (*NFA, error) {
 	n := NFA{
-		Automaton: {
+		Automaton: Automaton{
 			States:   NewStateSet(states),
 			Alphabet: alphabet,
 			Start:    start,
