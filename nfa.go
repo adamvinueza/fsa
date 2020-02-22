@@ -3,9 +3,9 @@ package fsa
 import "fmt"
 
 type NFA struct {
-	Automaton
-	Deltas   NDeltas
-	current  *StateSet
+	AutomatonBase
+	Deltas  NDeltas
+	current *StateSet
 }
 
 func NewNFA(
@@ -15,7 +15,7 @@ func NewNFA(
 	finals []State,
 	transitions []NTransition) (*NFA, error) {
 	n := NFA{
-		Automaton: Automaton{
+		AutomatonBase: AutomatonBase{
 			States:   NewStateSet(states),
 			Alphabet: alphabet,
 			Start:    start,

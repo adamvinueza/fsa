@@ -6,8 +6,8 @@ import (
 
 const AnySymbol = "ANY_SYMBOL"
 
-// Automaton represents a finite-state automaton.
-type Automaton struct {
+// AutomatonBase represents the core of a finite-state automaton.
+type AutomatonBase struct {
 	// States represents this automaton's possible States.
 	States *StateSet
 	// Alphabet represets this automaton's possible symbols.
@@ -19,7 +19,7 @@ type Automaton struct {
 }
 
 type DFA struct {
-	Automaton
+	AutomatonBase
 	// Deltas is this automaton's mapping function from States and symbols to
 	// States.
 	Deltas Deltas
@@ -27,7 +27,7 @@ type DFA struct {
 	current State
 }
 
-// NewDFA creates an Automaton from the specified configuration.
+// NewDFA creates a deterministic automaton from the specified configuration.
 func NewDFA(
 	states []State,
 	alphabet []string,
@@ -36,7 +36,7 @@ func NewDFA(
 	finals []State) (*DFA, error) {
 
 	dfa := DFA{
-		Automaton: Automaton{
+		AutomatonBase: AutomatonBase{
 			States:   NewStateSet(states),
 			Alphabet: alphabet,
 			Start:    start,
@@ -83,7 +83,7 @@ func (dfa *DFA) Accepts(s string) bool {
 	return false
 }
 
-// AcceptsLanguage returns true if this Automaton accepts every symbol in the
+// AcceptsLanguage returns true if this automaton accepts every symbol in the
 // specified Language.
 func (dfa *DFA) AcceptsLanguage(l *Language) bool {
 	for s := range l.expressions.expressions {
