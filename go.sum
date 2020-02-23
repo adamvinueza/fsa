@@ -1,2 +1,4 @@
 github.com/adamvinueza/monkey v0.0.0-20200115165645-d05a587cc869 h1:B+LO/9WPLDK5q9c4RybBw3EWJUmg4Z4SqD/ebWh7wkE=
 github.com/adamvinueza/monkey v0.0.0-20200115165645-d05a587cc869/go.mod h1:HP/Mhsn/dt6VHn9CxbXENiczrrsbedF5iA+uQryaepE=
+github.com/leanovate/gopter v0.2.7 h1:gJpGQy4Qevaa7q89T/94+AdqQ+GQ6MP/3Sk9fZzCri0=
+github.com/leanovate/gopter v0.2.7/go.mod h1:gNcbPWNEWRe4lm+bycKqxUYoH5uoVje5SkOJ3uoLer8=

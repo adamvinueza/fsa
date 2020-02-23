@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+// AnySymbol represents any symbol, and is used to simplify transitions that
+// don't depend on the symbol.
 const AnySymbol = "ANY_SYMBOL"
 
 // AutomatonBase represents the core of a finite-state automaton.
@@ -18,6 +20,7 @@ type AutomatonBase struct {
 	Finals *StateSet
 }
 
+// DFA is a deterministic finite-state automaton.
 type DFA struct {
 	AutomatonBase
 	// Deltas is this automaton's mapping function from States and symbols to
@@ -55,22 +58,25 @@ func NewDFA(
 			return nil, err
 		}
 	}
-	dfa.Reset()
+	dfa.current = dfa.Start
 	return &dfa, nil
 }
 
-// Reset sets this Automaton's current state to its initial state.
+// Reset returns this automaton to its initial state.
 func (dfa *DFA) Reset() {
 	dfa.current = dfa.Start
 }
 
-// Accepts returns true if this Automaton's Deltas function takes the sequence
+// Accepts returns true if this automaton's Deltas function takes the sequence
 // of symbols in the specified string from the initial state to an accepting
 // state.
 func (dfa *DFA) Accepts(s string) bool {
 	head, tail := behead(s)
 	if len(head) == 0 {
-		return dfa.Finals.Contains(dfa.current)
+		a := dfa.Finals.Contains(dfa.current)
+		// we want Accepts to be idempotent
+		dfa.Reset()
+		return a
 	}
 	// check for a valid transition from that symbol
 	if err := dfa.transition(head); err == nil {
@@ -80,6 +86,7 @@ func (dfa *DFA) Accepts(s string) bool {
 	if err := dfa.transition(AnySymbol); err == nil {
 		return dfa.Accepts(tail)
 	}
+	dfa.Reset()
 	return false
 }
 
@@ -90,7 +97,6 @@ func (dfa *DFA) AcceptsLanguage(l *Language) bool {
 		if !dfa.Accepts(s) {
 			return false
 		}
-		dfa.Reset()
 	}
 	return true
 }
@@ -136,7 +142,7 @@ func stringsContains(ss []string, s string) bool {
 }
 
 // This function tries to transition from the current state and the specified
-// token string to a next valid state in this Automaton. Returns an error if it
+// token string to a next valid state in this automaton. Returns an error if it
 // cannot find a valid state.
 func (dfa *DFA) transition(s string) error {
 	err := fmt.Errorf("could not transition from symbol %s", s)

@@ -1,8 +1,13 @@
 package fsa_test
 
 import (
-	. "github.com/adamvinueza/fsa"
 	"testing"
+
+	"github.com/leanovate/gopter/gen"
+
+	. "github.com/adamvinueza/fsa"
+	"github.com/leanovate/gopter"
+	"github.com/leanovate/gopter/prop"
 )
 
 func TestAcceptsNothing(t *testing.T) {
@@ -19,36 +24,26 @@ func TestAcceptsNothing(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error creating Automaton: %s", err.Error())
 	}
-	tests := []struct {
-		input    string
-		accepted bool
-	}{
-		{
-			"",
-			false,
+	properties := gopter.NewProperties(nil)
+	properties.Property("Nothing is accepted", prop.ForAll(
+		func(s string) bool {
+			a := f.Accepts(s)
+			return a == false
 		},
-		{
-			"a",
-			false,
-		},
-	}
-	for _, tt := range tests {
-		accepted := f.Accepts(tt.input)
-		if tt.accepted != accepted {
-			t.Fatalf("Expected accepted value of %t, found %t", tt.accepted, accepted)
-		}
-	}
+		gen.AnyString(),
+	))
+	properties.TestingRun(t)
 }
 
 func TestAcceptsOnlyEmptyString(t *testing.T) {
-	q1 := NewState(1)
-	q2 := NewState(2)
-	states := []State{q1, q2}
+	q0 := NewState(1)
+	q1 := NewState(2)
+	states := []State{q0, q1}
 	alphabet := []string{}
 	f, err := NewDFA(
 		states,   // allowable states
 		alphabet, // alphabet
-		q1,       // initial state
+		q0,       // initial state
 		[]Transition{
 			// Any symbol takes the FSA from its sole final state to its sole
 			// non-final state; this is the only transition. Saves us the
@@ -56,35 +51,26 @@ func TestAcceptsOnlyEmptyString(t *testing.T) {
 			// number of transitions from distinct symbols, or modifying
 			// transitions to take slices of symbols.
 			Transition{
-				q1,
+				q0,
 				AnySymbol,
-				q2,
+				q1,
 			},
 		}, // allowable transitions
-		[]State{q1}, // final states
+		[]State{q0}, // final states
 	)
 	if err != nil {
 		t.Fatalf("error creating Automaton: %s", err.Error())
 	}
-	tests := []struct {
-		input    string
-		accepted bool
-	}{
-		{
-			"",
-			true,
+	properties := gopter.NewProperties(nil)
+	properties.Property("Only the empty string is accepted", prop.ForAll(
+		func(s string) bool {
+			a := f.Accepts(s)
+			empty := len(s) == 0
+			return a == empty
 		},
-		{
-			"a",
-			false,
-		},
-	}
-	for _, tt := range tests {
-		accepted := f.Accepts(tt.input)
-		if tt.accepted != accepted {
-			t.Fatalf("Expected accepted value of %t, found %t", tt.accepted, accepted)
-		}
-	}
+		gen.AnyString(),
+	))
+	properties.TestingRun(t)
 }
 
 func TestAcceptsEmptyStringOrEvenBinary(t *testing.T) {
@@ -130,58 +116,27 @@ func TestAcceptsEmptyStringOrEvenBinary(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error creating Automaton: %s", err.Error())
 	}
-	tests := []struct {
-		input    string
-		accepted bool
-	}{
-		{
-			"",
-			true,
+	properties := gopter.NewProperties(nil)
+	properties.Property("The empty string or any string parsing to an even binary is accepted", prop.ForAll(
+		func(s string) bool {
+			a := f.Accepts(s)
+			if len(s) == 0 {
+				return a
+			}
+			// even binary strings must end in "0"
+			even := string(s[len(s)-1]) == "0"
+			return a == even
 		},
-		{
-			"a",
-			false,
+		gen.RegexMatch("^[01]*$"),
+	))
+	properties.Property("Any string that is not binary is not accepted", prop.ForAll(
+		func(s string) bool {
+			a := f.Accepts(s)
+			return a == false
 		},
-		{
-			"0",
-			true,
-		},
-		{
-			"00000000000000000000000",
-			true,
-		},
-		{
-			"0000000000000000000000100000000000000000000000",
-			true,
-		},
-		{
-			"01",
-			false,
-		},
-		{
-			"1110",
-			true,
-		},
-		{
-			"1111111111111111111111111111",
-			false,
-		},
-		{
-			"000011101110",
-			true,
-		},
-		{
-			"0000x11101110",
-			false,
-		},
-	}
-	for i, tt := range tests {
-		f.Reset()
-		accepted := f.Accepts(tt.input)
-		if tt.accepted != accepted {
-			t.Fatalf("In test %d, expected accepted value of %t, found %t", i, tt.accepted, accepted)
-		}
-	}
+		gen.RegexMatch("[^01]"),
+	))
+	properties.TestingRun(t)
 }
 
 func TestAcceptsEvenNumberOfSymbols(t *testing.T) {
@@ -189,7 +144,7 @@ func TestAcceptsEvenNumberOfSymbols(t *testing.T) {
 	q1 := NewState(1)
 	q2 := NewState(2)
 	states := []State{q0, q1, q2}
-	a := "a"
+	a := AnySymbol
 	alphabet := []string{a}
 	f, err := NewDFA(
 		states,
@@ -220,38 +175,17 @@ func TestAcceptsEvenNumberOfSymbols(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error creating Automaton: %s", err.Error())
 	}
-	tests := []struct {
-		input    string
-		accepted bool
-	}{
-		{
-			"",
-			true,
+	properties := gopter.NewProperties(nil)
+
+	properties.Property("Any string with an even number of symbols is accepted", prop.ForAll(
+		func(s string) bool {
+			a := f.Accepts(s)
+			even := len(s)%2 == 0
+			return a == even
 		},
-		{
-			"a",
-			false,
-		},
-		{
-			"aa",
-			true,
-		},
-		{
-			"aaa",
-			false,
-		},
-		{
-			"aaaa",
-			true,
-		},
-	}
-	for i, tt := range tests {
-		f.Reset()
-		accepted := f.Accepts(tt.input)
-		if tt.accepted != accepted {
-			t.Fatalf("In test %d, expected accepted value of %t, found %t", i, tt.accepted, accepted)
-		}
-	}
+		gen.AnyString(),
+	))
+	properties.TestingRun(t)
 }
 
 func TestAcceptsEvenAsLanguage(t *testing.T) {
@@ -259,7 +193,7 @@ func TestAcceptsEvenAsLanguage(t *testing.T) {
 	q1 := NewState(1)
 	q2 := NewState(2)
 	states := []State{q0, q1, q2}
-	a := "a"
+	a := AnySymbol
 	alphabet := []string{a}
 	f, err := NewDFA(
 		states,
@@ -290,7 +224,7 @@ func TestAcceptsEvenAsLanguage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error creating Automaton: %s", err.Error())
 	}
-	acceptableLang, err := NewLanguage([]string{"aa", "aaaa", "aaaaaa", "aaaaaaaa", "aaaaaaaaaaaaaaaa"})
+	acceptableLang, err := NewLanguage([]string{"aa", "aaaa", "1u9*^4", "a7uglf) ", "298390fakjla*()b"})
 	if err != nil {
 		t.Fatalf("error creating language: %s", err.Error())
 	}
@@ -312,10 +246,64 @@ func TestAcceptsEvenAsLanguage(t *testing.T) {
 		},
 	}
 	for i, tt := range tests {
-		f.Reset()
 		accepted := f.AcceptsLanguage(tt.input)
 		if tt.accepted != accepted {
 			t.Fatalf("In test %d, expected accepted value of %t, found %t", i, tt.accepted, accepted)
 		}
 	}
+}
+
+func TestAcceptsOdd(t *testing.T) {
+	q0 := NewState(0)
+	q1 := NewState(1)
+	q2 := NewState(2)
+	q3 := NewState(3)
+	states := []State{q0, q1, q2, q3}
+	a := AnySymbol
+	alphabet := []string{a}
+	f, err := NewDFA(
+		states,
+		alphabet,
+		q0,
+		[]Transition{
+			Transition{
+				Start: q0,
+				Token: a,
+				End:   q1,
+			},
+			Transition{
+				Start: q1,
+				Token: a,
+				End:   q2,
+			},
+			Transition{
+				Start: q2,
+				Token: a,
+				End:   q3,
+			},
+			Transition{
+				Start: q3,
+				Token: a,
+				End:   q0,
+			},
+		},
+		[]State{
+			q1,
+			q3,
+		},
+	)
+	if err != nil {
+		t.Fatalf("error creating Automaton: %s", err.Error())
+	}
+	properties := gopter.NewProperties(nil)
+
+	properties.Property("Any string with an odd number of symbols is accepted", prop.ForAll(
+		func(s string) bool {
+			a := f.Accepts(s)
+			odd := len(s)%2 == 1
+			return a == odd
+		},
+		gen.AnyString(),
+	))
+	properties.TestingRun(t)
 }
