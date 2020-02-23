@@ -10,6 +10,25 @@ import (
 	"github.com/leanovate/gopter/prop"
 )
 
+func generateLanguage(t *testing.T, f interface{}) *Language {
+	langGen := gen.AnyString().SuchThat(f)
+	var sentences []string
+	var i int
+	for i < 100 {
+		s, ok := langGen.Sample()
+		if !ok {
+			continue
+		}
+		i++
+		sentences = append(sentences, s.(string))
+	}
+	lang, err := NewLanguage(sentences)
+	if err != nil {
+		t.Fatal(err.Error())
+	}
+	return lang
+}
+
 func TestAcceptsNothing(t *testing.T) {
 	q0 := NewState(0)
 	states := []State{q0}
@@ -224,24 +243,20 @@ func TestAcceptsEvenAsLanguage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error creating Automaton: %s", err.Error())
 	}
-	acceptableLang, err := NewLanguage([]string{"aa", "aaaa", "1u9*^4", "a7uglf) ", "298390fakjla*()b"})
-	if err != nil {
-		t.Fatalf("error creating language: %s", err.Error())
-	}
-	unacceptableLang, err := NewLanguage([]string{"aa", "aaaa", "aaaaaa", "aaaaaaaaa", "aaaaaaaaaaaaaaaa"})
-	if err != nil {
-		t.Fatalf("error creating language: %s", err.Error())
-	}
 	tests := []struct {
 		input    *Language
 		accepted bool
 	}{
 		{
-			acceptableLang,
+			generateLanguage(t, func(s string) bool {
+				return len(s)%2 == 0
+			}),
 			true,
 		},
 		{
-			unacceptableLang,
+			generateLanguage(t, func(s string) bool {
+				return len(s)%2 == 1
+			}),
 			false,
 		},
 	}
